@@ -1,78 +1,20 @@
-import React from "react";
-import { Stack, Link } from "expo-router";
-import { FlatList, Pressable, StyleSheet, View, Text, Alert, Platform } from "react-native";
-import { IconSymbol } from "@/components/IconSymbol";
-import { GlassView } from "expo-glass-effect";
-import { useTheme } from "@react-navigation/native";
 
-const ICON_COLOR = "#007AFF";
+import React from "react";
+import { Stack, useRouter } from "expo-router";
+import { StyleSheet, View, Text, Pressable, Platform, ScrollView } from "react-native";
+import { IconSymbol } from "@/components/IconSymbol";
+import { colors } from "@/styles/commonStyles";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function HomeScreen() {
-  const theme = useTheme();
-  const modalDemos = [
-    {
-      title: "Standard Modal",
-      description: "Full screen modal presentation",
-      route: "/modal",
-      color: "#007AFF",
-    },
-    {
-      title: "Form Sheet",
-      description: "Bottom sheet with detents and grabber",
-      route: "/formsheet",
-      color: "#34C759",
-    },
-    {
-      title: "Transparent Modal",
-      description: "Overlay without obscuring background",
-      route: "/transparent-modal",
-      color: "#FF9500",
-    }
-  ];
-
-  const renderModalDemo = ({ item }: { item: (typeof modalDemos)[0] }) => (
-    <GlassView style={[
-      styles.demoCard,
-      Platform.OS !== 'ios' && { backgroundColor: theme.dark ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)' }
-    ]} glassEffectStyle="regular">
-      <View style={[styles.demoIcon, { backgroundColor: item.color }]}>
-        <IconSymbol name="square.grid.3x3" color="white" size={24} />
-      </View>
-      <View style={styles.demoContent}>
-        <Text style={[styles.demoTitle, { color: theme.colors.text }]}>{item.title}</Text>
-        <Text style={[styles.demoDescription, { color: theme.dark ? '#98989D' : '#666' }]}>{item.description}</Text>
-      </View>
-      <Link href={item.route as any} asChild>
-        <Pressable>
-          <GlassView style={[
-            styles.tryButton,
-            Platform.OS !== 'ios' && { backgroundColor: theme.dark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)' }
-          ]} glassEffectStyle="clear">
-            <Text style={[styles.tryButtonText, { color: theme.colors.primary }]}>Try It</Text>
-          </GlassView>
-        </Pressable>
-      </Link>
-    </GlassView>
-  );
+  const router = useRouter();
 
   const renderHeaderRight = () => (
     <Pressable
-      onPress={() => Alert.alert("Not Implemented", "This feature is not implemented yet")}
+      onPress={() => console.log("Settings pressed")}
       style={styles.headerButtonContainer}
     >
-      <IconSymbol name="plus" color={theme.colors.primary} />
-    </Pressable>
-  );
-
-  const renderHeaderLeft = () => (
-    <Pressable
-      onPress={() => Alert.alert("Not Implemented", "This feature is not implemented yet")}
-      style={styles.headerButtonContainer}
-    >
-      <IconSymbol
-        name="gear"
-        color={theme.colors.primary}
-      />
+      <IconSymbol name="gear" color={colors.primary} />
     </Pressable>
   );
 
@@ -81,24 +23,59 @@ export default function HomeScreen() {
       {Platform.OS === 'ios' && (
         <Stack.Screen
           options={{
-            title: "Building the app...",
+            title: "Understanding Arkam",
             headerRight: renderHeaderRight,
-            headerLeft: renderHeaderLeft,
           }}
         />
       )}
-      <View style={[styles.container, { backgroundColor: theme.colors.background }]}>
-        <FlatList
-          data={modalDemos}
-          renderItem={renderModalDemo}
-          keyExtractor={(item) => item.route}
-          contentContainerStyle={[
-            styles.listContainer,
-            Platform.OS !== 'ios' && styles.listContainerWithTabBar
-          ]}
-          contentInsetAdjustmentBehavior="automatic"
+      <View style={styles.container}>
+        <ScrollView 
+          contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
-        />
+        >
+          <View style={styles.heroSection}>
+            <View style={styles.iconContainer}>
+              <IconSymbol name="heart.fill" color={colors.primary} size={80} />
+            </View>
+            <Text style={styles.title}>Understanding Arkam</Text>
+            <Text style={styles.subtitle}>
+              Sometimes things aren&apos;t what they seem. Let&apos;s understand the situation better.
+            </Text>
+          </View>
+
+          <View style={styles.cardContainer}>
+            <Pressable 
+              style={styles.mainCard}
+              onPress={() => router.push('/questionnaire')}
+            >
+              <LinearGradient
+                colors={[colors.primary, colors.secondary]}
+                style={styles.gradientCard}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 1 }}
+              >
+                <View style={styles.cardIcon}>
+                  <IconSymbol name="doc.text.fill" color="#FFFFFF" size={32} />
+                </View>
+                <Text style={styles.cardTitle}>Start Questionnaire</Text>
+                <Text style={styles.cardDescription}>
+                  Answer a few questions to get a better perspective
+                </Text>
+                <View style={styles.arrowContainer}>
+                  <IconSymbol name="arrow.right" color="#FFFFFF" size={24} />
+                </View>
+              </LinearGradient>
+            </Pressable>
+
+            <View style={styles.infoCard}>
+              <IconSymbol name="info.circle.fill" color={colors.primary} size={24} />
+              <Text style={styles.infoText}>
+                This app helps you understand situations from a positive perspective. 
+                Remember, everyone has busy days and stressful moments.
+              </Text>
+            </View>
+          </View>
+        </ScrollView>
       </View>
     </>
   );
@@ -107,55 +84,88 @@ export default function HomeScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // backgroundColor handled dynamically
+    backgroundColor: colors.background,
   },
-  listContainer: {
-    paddingVertical: 16,
-    paddingHorizontal: 16,
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: 20,
+    paddingTop: 20,
+    paddingBottom: Platform.OS !== 'ios' ? 100 : 40,
   },
-  listContainerWithTabBar: {
-    paddingBottom: 100, // Extra padding for floating tab bar
+  heroSection: {
+    alignItems: 'center',
+    marginBottom: 40,
   },
-  demoCard: {
-    borderRadius: 12,
-    padding: 16,
+  iconContainer: {
+    marginBottom: 20,
+  },
+  title: {
+    fontSize: 32,
+    fontWeight: '800',
+    color: colors.text,
+    textAlign: 'center',
     marginBottom: 12,
-    flexDirection: 'row',
+  },
+  subtitle: {
+    fontSize: 16,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 24,
+    paddingHorizontal: 20,
+  },
+  cardContainer: {
+    width: '100%',
+  },
+  mainCard: {
+    borderRadius: 20,
+    marginBottom: 20,
+    overflow: 'hidden',
+    boxShadow: '0px 4px 12px rgba(106, 90, 205, 0.3)',
+    elevation: 5,
+  },
+  gradientCard: {
+    padding: 24,
     alignItems: 'center',
   },
-  demoIcon: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 16,
+  cardIcon: {
+    marginBottom: 16,
   },
-  demoContent: {
-    flex: 1,
+  cardTitle: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: '#FFFFFF',
+    marginBottom: 8,
+    textAlign: 'center',
   },
-  demoTitle: {
-    fontSize: 18,
-    fontWeight: '600',
-    marginBottom: 4,
-    // color handled dynamically
-  },
-  demoDescription: {
+  cardDescription: {
     fontSize: 14,
-    lineHeight: 18,
-    // color handled dynamically
+    color: '#FFFFFF',
+    opacity: 0.9,
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  arrowContainer: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    borderRadius: 20,
+    padding: 8,
+  },
+  infoCard: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 20,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
+    elevation: 2,
+  },
+  infoText: {
+    flex: 1,
+    fontSize: 14,
+    color: colors.textSecondary,
+    lineHeight: 20,
+    marginLeft: 12,
   },
   headerButtonContainer: {
     padding: 6,
-  },
-  tryButton: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 6,
-  },
-  tryButtonText: {
-    fontSize: 14,
-    fontWeight: '600',
-    // color handled dynamically
   },
 });
