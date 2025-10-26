@@ -5,11 +5,12 @@ import { useRouter, Stack } from 'expo-router';
 import { IconSymbol } from '@/components/IconSymbol';
 import { colors } from '@/styles/commonStyles';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import { LinearGradient } from 'expo-linear-gradient';
 
 interface Question {
   id: string;
   question: string;
-  type: 'yesno' | 'datetime' | 'weather';
+  type: 'yesno' | 'datetime' | 'workstatus' | 'tension';
   options?: string[];
 }
 
@@ -25,10 +26,16 @@ const questions: Question[] = [
     type: 'datetime',
   },
   {
-    id: 'weather',
-    question: 'How is the weather today?',
-    type: 'weather',
-    options: ['Sunny', 'Rainy', 'Cloudy', 'Stormy', 'Cold', 'Hot'],
+    id: 'workStatus',
+    question: 'Is Arkam at work or working from home?',
+    type: 'workstatus',
+    options: ['At Work', 'Working from Home', 'Not Working'],
+  },
+  {
+    id: 'tension',
+    question: 'Does Arkam seem to be under tension?',
+    type: 'tension',
+    options: ['Yes, a lot', 'A little bit', 'Not really'],
   },
   {
     id: 'shouted',
@@ -149,14 +156,21 @@ export default function QuestionnaireScreen() {
               }
             }}
           >
-            <Text style={styles.confirmButtonText}>Confirm</Text>
+            <LinearGradient
+              colors={[colors.gradient1, colors.gradient2]}
+              style={styles.confirmButtonGradient}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+            >
+              <Text style={styles.confirmButtonText}>Confirm</Text>
+            </LinearGradient>
           </Pressable>
         )}
       </View>
     );
   };
 
-  const renderWeatherOptions = () => (
+  const renderOptions = () => (
     <View style={styles.optionsContainer}>
       {currentQuestion.options?.map((option) => (
         <Pressable
@@ -204,7 +218,11 @@ export default function QuestionnaireScreen() {
     <>
       <Stack.Screen
         options={{
-          title: 'Questionnaire',
+          title: 'Understanding Arkam',
+          headerStyle: {
+            backgroundColor: colors.background,
+          },
+          headerTintColor: colors.text,
           headerLeft: () => (
             <Pressable onPress={handleBack} style={styles.headerButton}>
               <IconSymbol name="chevron.left" color={colors.primary} size={24} />
@@ -213,9 +231,14 @@ export default function QuestionnaireScreen() {
         }}
       />
       <View style={styles.container}>
-        <View style={styles.progressBarContainer}>
+        <LinearGradient
+          colors={[colors.gradient1, colors.gradient2, colors.gradient3]}
+          style={styles.progressBarContainer}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+        >
           <View style={[styles.progressBar, { width: `${progress}%` }]} />
-        </View>
+        </LinearGradient>
 
         <ScrollView
           contentContainerStyle={styles.scrollContent}
@@ -230,8 +253,12 @@ export default function QuestionnaireScreen() {
 
           <View style={styles.answerContainer}>
             {currentQuestion.type === 'datetime' && renderDateTimePicker()}
-            {currentQuestion.type === 'weather' && renderWeatherOptions()}
+            {(currentQuestion.type === 'workstatus' || currentQuestion.type === 'tension') && renderOptions()}
             {currentQuestion.type === 'yesno' && renderYesNoOptions()}
+          </View>
+
+          <View style={styles.madeByContainer}>
+            <Text style={styles.madeByText}>Made with ❤️ by Arkam</Text>
           </View>
         </ScrollView>
       </View>
@@ -245,13 +272,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
   },
   progressBarContainer: {
-    height: 4,
-    backgroundColor: colors.accent,
+    height: 6,
     width: '100%',
   },
   progressBar: {
     height: '100%',
-    backgroundColor: colors.primary,
+    backgroundColor: 'rgba(255, 255, 255, 0.5)',
   },
   scrollContent: {
     flexGrow: 1,
@@ -288,8 +314,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0px 2px 8px rgba(255, 105, 180, 0.2)',
     elevation: 2,
+    borderWidth: 2,
+    borderColor: colors.accent,
   },
   dateTimeButtonText: {
     fontSize: 18,
@@ -298,11 +326,15 @@ const styles = StyleSheet.create({
     marginLeft: 12,
   },
   confirmButton: {
-    backgroundColor: colors.primary,
     borderRadius: 12,
-    padding: 16,
     marginTop: 20,
     width: '100%',
+    overflow: 'hidden',
+    boxShadow: '0px 4px 12px rgba(255, 105, 180, 0.3)',
+    elevation: 4,
+  },
+  confirmButtonGradient: {
+    padding: 16,
     alignItems: 'center',
   },
   confirmButtonText: {
@@ -311,24 +343,21 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
   },
   optionsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: 12,
   },
   optionButton: {
     backgroundColor: colors.card,
     borderRadius: 12,
-    padding: 16,
-    minWidth: '30%',
+    padding: 20,
     alignItems: 'center',
-    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0px 2px 8px rgba(255, 105, 180, 0.2)',
     elevation: 2,
     borderWidth: 2,
-    borderColor: 'transparent',
+    borderColor: colors.accent,
   },
   optionButtonSelected: {
     backgroundColor: colors.primary,
-    borderColor: colors.secondary,
+    borderColor: colors.gradient1,
   },
   optionButtonText: {
     fontSize: 16,
@@ -355,7 +384,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#4CAF50',
   },
   noButton: {
-    backgroundColor: '#F44336',
+    backgroundColor: colors.primary,
   },
   yesNoButtonText: {
     fontSize: 20,
@@ -365,5 +394,15 @@ const styles = StyleSheet.create({
   },
   headerButton: {
     padding: 8,
+  },
+  madeByContainer: {
+    marginTop: 30,
+    alignItems: 'center',
+  },
+  madeByText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    fontWeight: '600',
+    opacity: 0.7,
   },
 });

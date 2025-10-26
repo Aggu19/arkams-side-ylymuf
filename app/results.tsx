@@ -13,6 +13,8 @@ export default function ResultsScreen() {
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [message, setMessage] = useState('');
   const [reasons, setReasons] = useState<string[]>([]);
+  const [arabicQuote, setArabicQuote] = useState('');
+  const [quoteTranslation, setQuoteTranslation] = useState('');
 
   useEffect(() => {
     if (params.answers) {
@@ -25,43 +27,73 @@ export default function ResultsScreen() {
   const generateMessage = (ans: Record<string, any>) => {
     const possibleReasons: string[] = [];
 
+    // Analyze work status
+    if (ans.workStatus === 'At Work') {
+      possibleReasons.push('Arkam is at work right now. He&apos;s trying his best to focus on his responsibilities while thinking of you.');
+    } else if (ans.workStatus === 'Working from Home') {
+      possibleReasons.push('Arkam is working from home. Even though he&apos;s nearby, his mind is occupied with work tasks.');
+    }
+
+    // Analyze tension
+    if (ans.tension === 'Yes, a lot') {
+      possibleReasons.push('He&apos;s under a lot of tension right now. Please wait until he finishes his work - he&apos;s trying really hard.');
+      setArabicQuote('الصبر مفتاح الفرج');
+      setQuoteTranslation('Patience is the key to relief');
+    } else if (ans.tension === 'A little bit') {
+      possibleReasons.push('He&apos;s feeling a bit tense. Give him some time to complete his tasks and he&apos;ll be back to his loving self.');
+      setArabicQuote('كل شيء سيكون على ما يرام');
+      setQuoteTranslation('Everything will be alright');
+    } else {
+      setArabicQuote('الحب يصنع المعجزات');
+      setQuoteTranslation('Love works miracles');
+    }
+
     // Analyze the answers
     if (ans.stressed === 'yes') {
-      possibleReasons.push('He might be dealing with stress from work or personal matters');
+      possibleReasons.push('He&apos;s dealing with stress. Remember, he&apos;s working hard for both of you.');
     }
     if (ans.busy === 'yes') {
-      possibleReasons.push('He mentioned being busy, which means he has a lot on his plate');
-    }
-    if (ans.weather === 'Rainy' || ans.weather === 'Stormy' || ans.weather === 'Cold') {
-      possibleReasons.push('The weather can affect mood and energy levels');
+      possibleReasons.push('He mentioned being busy. This means he has important work to finish.');
     }
 
     // Check time of day
     if (ans.time) {
       const hour = new Date(ans.time).getHours();
       if (hour < 8) {
-        possibleReasons.push('Early mornings can be tough, especially if he didn&apos;t sleep well');
+        possibleReasons.push('Early mornings can be tough. He might not have had his coffee yet!');
       } else if (hour > 20) {
-        possibleReasons.push('Late evenings can be exhausting after a long day');
+        possibleReasons.push('Late evenings are exhausting after a long day of work.');
       } else if (hour >= 12 && hour <= 14) {
-        possibleReasons.push('Lunchtime can be hectic with work deadlines');
+        possibleReasons.push('Midday is often the busiest time with work deadlines.');
+      } else if (hour >= 9 && hour <= 18) {
+        possibleReasons.push('He&apos;s in the middle of his work day, trying to meet his goals.');
       }
     }
 
     // General positive reasons
     if (possibleReasons.length === 0 || ans.shouted === 'yes' || ans.notTalkingWell === 'yes') {
-      possibleReasons.push('Everyone has difficult moments, and it&apos;s not about you');
-      possibleReasons.push('He might be overwhelmed with responsibilities');
-      possibleReasons.push('Sometimes people need space to process their thoughts');
+      possibleReasons.push('Everyone has difficult moments. It&apos;s not about you - he loves you deeply.');
+      possibleReasons.push('He might be overwhelmed with responsibilities right now.');
+      possibleReasons.push('Sometimes people need space to process their thoughts and emotions.');
     }
 
     setReasons(possibleReasons);
 
-    // Generate main message
-    const mainMessage = 
-      'Remember, Arkam loves you very much. His behavior today doesn&apos;t reflect his feelings for you. ' +
-      'We all have challenging days, and sometimes we don&apos;t express ourselves the way we want to. ' +
-      'Give him some time and space, and things will get better. You&apos;re amazing, and he knows it! 💜';
+    // Generate main message based on work status and tension
+    let mainMessage = '';
+    
+    if (ans.workStatus === 'At Work' || ans.workStatus === 'Working from Home') {
+      mainMessage = 
+        'Shaeema, my love, please understand that Arkam is working right now. He&apos;s trying his absolute best to finish his work. ' +
+        'Wait until he completes his tasks - he&apos;s working hard for your future together. ' +
+        'His love for you never changes, even when he&apos;s busy or stressed. ' +
+        'You mean the world to him, and he&apos;s doing everything he can. Please be patient with him. 💕';
+    } else {
+      mainMessage = 
+        'Remember, Arkam loves you more than anything in this world. His behavior today doesn&apos;t reflect his feelings for you. ' +
+        'We all have challenging days, and sometimes we don&apos;t express ourselves the way we want to. ' +
+        'Give him some time and space, and things will get better. You&apos;re his everything, and he knows how special you are! 💖';
+    }
 
     setMessage(mainMessage);
   };
@@ -71,6 +103,10 @@ export default function ResultsScreen() {
       <Stack.Screen
         options={{
           title: 'Understanding',
+          headerStyle: {
+            backgroundColor: colors.background,
+          },
+          headerTintColor: colors.text,
           headerLeft: () => null,
         }}
       />
@@ -84,7 +120,7 @@ export default function ResultsScreen() {
             style={styles.iconContainer}
           >
             <LinearGradient
-              colors={[colors.primary, colors.secondary]}
+              colors={[colors.gradient1, colors.gradient2]}
               style={styles.iconGradient}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
@@ -97,6 +133,16 @@ export default function ResultsScreen() {
             <Text style={styles.title}>Everything Will Be Okay</Text>
           </Animated.View>
 
+          {arabicQuote && (
+            <Animated.View 
+              entering={FadeInDown.delay(500).duration(600)}
+              style={styles.arabicQuoteCard}
+            >
+              <Text style={styles.arabicQuoteText}>{arabicQuote}</Text>
+              <Text style={styles.quoteTranslationText}>{quoteTranslation}</Text>
+            </Animated.View>
+          )}
+
           <Animated.View 
             entering={FadeInDown.delay(600).duration(600)}
             style={styles.messageCard}
@@ -108,7 +154,7 @@ export default function ResultsScreen() {
             entering={FadeInDown.delay(800).duration(600)}
             style={styles.reasonsContainer}
           >
-            <Text style={styles.reasonsTitle}>Possible Reasons:</Text>
+            <Text style={styles.reasonsTitle}>Why This Might Be Happening:</Text>
             {reasons.map((reason, index) => (
               <Animated.View
                 key={index}
@@ -116,7 +162,7 @@ export default function ResultsScreen() {
                 style={styles.reasonItem}
               >
                 <View style={styles.reasonBullet}>
-                  <IconSymbol name="checkmark.circle.fill" color={colors.primary} size={20} />
+                  <IconSymbol name="heart.fill" color={colors.primary} size={16} />
                 </View>
                 <Text style={styles.reasonText}>{reason}</Text>
               </Animated.View>
@@ -127,28 +173,44 @@ export default function ResultsScreen() {
             entering={FadeInDown.delay(1500).duration(600)}
             style={styles.tipsCard}
           >
-            <Text style={styles.tipsTitle}>What You Can Do:</Text>
+            <Text style={styles.tipsTitle}>What You Should Do:</Text>
             <View style={styles.tipItem}>
-              <IconSymbol name="message.fill" color={colors.secondary} size={20} />
-              <Text style={styles.tipText}>Send him a sweet message later</Text>
+              <IconSymbol name="clock.fill" color={colors.primary} size={20} />
+              <Text style={styles.tipText}>Wait patiently until he finishes his work</Text>
             </View>
             <View style={styles.tipItem}>
-              <IconSymbol name="clock.fill" color={colors.secondary} size={20} />
-              <Text style={styles.tipText}>Give him some time and space</Text>
+              <IconSymbol name="heart.fill" color={colors.primary} size={20} />
+              <Text style={styles.tipText}>Remember that he loves you deeply</Text>
             </View>
             <View style={styles.tipItem}>
-              <IconSymbol name="heart.fill" color={colors.secondary} size={20} />
-              <Text style={styles.tipText}>Remember that he cares about you</Text>
+              <IconSymbol name="message.fill" color={colors.primary} size={20} />
+              <Text style={styles.tipText}>Send him a sweet message later when he&apos;s free</Text>
+            </View>
+            <View style={styles.tipItem}>
+              <IconSymbol name="sparkles" color={colors.primary} size={20} />
+              <Text style={styles.tipText}>Trust that he&apos;s trying his best for both of you</Text>
             </View>
           </Animated.View>
 
-          <Animated.View entering={FadeInDown.delay(1700).duration(600)}>
+          <Animated.View 
+            entering={FadeInDown.delay(1700).duration(600)}
+            style={styles.loveNoteCard}
+          >
+            <Text style={styles.loveNoteTitle}>A Note from Arkam:</Text>
+            <Text style={styles.loveNoteText}>
+              Shaeema, you are the most precious person in my life. Every moment I spend working is for our future together. 
+              I may get busy or stressed, but my love for you never wavers. You deserve all my love and so much more. 
+              Thank you for being patient and understanding. I love you endlessly. ❤️
+            </Text>
+          </Animated.View>
+
+          <Animated.View entering={FadeInDown.delay(1900).duration(600)}>
             <Pressable
               style={styles.doneButton}
               onPress={() => router.push('/(tabs)/(home)/')}
             >
               <LinearGradient
-                colors={[colors.primary, colors.secondary]}
+                colors={[colors.gradient1, colors.gradient2]}
                 style={styles.doneButtonGradient}
                 start={{ x: 0, y: 0 }}
                 end={{ x: 1, y: 1 }}
@@ -158,6 +220,10 @@ export default function ResultsScreen() {
               </LinearGradient>
             </Pressable>
           </Animated.View>
+
+          <View style={styles.madeByContainer}>
+            <Text style={styles.madeByText}>Made with endless love by Arkam ❤️</Text>
+          </View>
         </ScrollView>
       </View>
     </>
@@ -185,7 +251,7 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     justifyContent: 'center',
     alignItems: 'center',
-    boxShadow: '0px 4px 16px rgba(106, 90, 205, 0.3)',
+    boxShadow: '0px 4px 16px rgba(255, 105, 180, 0.4)',
     elevation: 5,
   },
   title: {
@@ -195,14 +261,42 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     marginBottom: 24,
   },
+  arabicQuoteCard: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    width: '100%',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: colors.accent,
+    boxShadow: '0px 2px 12px rgba(255, 105, 180, 0.2)',
+    elevation: 3,
+  },
+  arabicQuoteText: {
+    fontSize: 24,
+    fontWeight: '700',
+    color: colors.primary,
+    textAlign: 'center',
+    marginBottom: 8,
+    fontFamily: 'System',
+  },
+  quoteTranslationText: {
+    fontSize: 14,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
   messageCard: {
     backgroundColor: colors.card,
     borderRadius: 20,
     padding: 24,
     marginBottom: 24,
     width: '100%',
-    boxShadow: '0px 2px 12px rgba(0, 0, 0, 0.1)',
+    boxShadow: '0px 2px 12px rgba(255, 105, 180, 0.2)',
     elevation: 3,
+    borderWidth: 2,
+    borderColor: colors.accent,
   },
   messageText: {
     fontSize: 16,
@@ -227,8 +321,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    boxShadow: '0px 2px 8px rgba(0, 0, 0, 0.08)',
+    boxShadow: '0px 2px 8px rgba(255, 105, 180, 0.15)',
     elevation: 2,
+    borderWidth: 1,
+    borderColor: colors.accent,
   },
   reasonBullet: {
     marginRight: 12,
@@ -246,6 +342,8 @@ const styles = StyleSheet.create({
     padding: 20,
     width: '100%',
     marginBottom: 24,
+    borderWidth: 2,
+    borderColor: colors.secondary,
   },
   tipsTitle: {
     fontSize: 18,
@@ -264,12 +362,38 @@ const styles = StyleSheet.create({
     marginLeft: 12,
     flex: 1,
   },
+  loveNoteCard: {
+    backgroundColor: colors.card,
+    borderRadius: 20,
+    padding: 24,
+    marginBottom: 24,
+    width: '100%',
+    boxShadow: '0px 4px 16px rgba(255, 105, 180, 0.3)',
+    elevation: 4,
+    borderWidth: 2,
+    borderColor: colors.primary,
+  },
+  loveNoteTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.primary,
+    marginBottom: 12,
+    textAlign: 'center',
+  },
+  loveNoteText: {
+    fontSize: 15,
+    color: colors.text,
+    lineHeight: 24,
+    textAlign: 'center',
+    fontStyle: 'italic',
+  },
   doneButton: {
     width: '100%',
     borderRadius: 16,
     overflow: 'hidden',
-    boxShadow: '0px 4px 12px rgba(106, 90, 205, 0.3)',
+    boxShadow: '0px 4px 12px rgba(255, 105, 180, 0.4)',
     elevation: 4,
+    marginBottom: 20,
   },
   doneButtonGradient: {
     flexDirection: 'row',
@@ -282,5 +406,15 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '700',
     color: '#FFFFFF',
+  },
+  madeByContainer: {
+    marginTop: 10,
+    alignItems: 'center',
+  },
+  madeByText: {
+    fontSize: 12,
+    color: colors.textSecondary,
+    fontWeight: '600',
+    opacity: 0.7,
   },
 });
