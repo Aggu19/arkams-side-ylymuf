@@ -1,3 +1,4 @@
+
 import React from 'react';
 import {
   View,
@@ -96,8 +97,6 @@ export default function FloatingTabBar({
     router.push(route);
   };
 
-  // Remove unnecessary tabBarStyle animation to prevent flickering
-
   const indicatorStyle = useAnimatedStyle(() => {
     const tabWidth = (containerWidth - 16) / tabs.length; // Account for container padding (8px on each side)
     return {
@@ -113,44 +112,32 @@ export default function FloatingTabBar({
     };
   });
 
-  // Dynamic styles based on theme
+  // Dynamic styles based on theme - DARK BACKGROUND FOR VISIBILITY
   const dynamicStyles = {
     blurContainer: {
       ...styles.blurContainer,
       ...Platform.select({
         ios: {
-          backgroundColor: theme.dark
-            ? 'rgba(28, 28, 30, 0.8)'
-            : 'rgba(255, 255, 255, 0.8)',
+          backgroundColor: 'rgba(28, 28, 30, 0.95)', // Dark background for iOS
         },
         android: {
-          backgroundColor: theme.dark
-            ? 'rgba(28, 28, 30, 0.95)'
-            : 'rgba(255, 255, 255, 0.95)',
+          backgroundColor: 'rgba(28, 28, 30, 0.98)', // Dark background for Android
           elevation: 8,
         },
         web: {
-          backgroundColor: theme.dark
-            ? 'rgba(28, 28, 30, 0.95)'
-            : 'rgba(255, 255, 255, 0.95)',
+          backgroundColor: 'rgba(28, 28, 30, 0.98)', // Dark background for Web
           backdropFilter: 'blur(10px)',
-          boxShadow: theme.dark
-            ? '0 8px 32px rgba(0, 0, 0, 0.4)'
-            : '0 8px 32px rgba(0, 0, 0, 0.1)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
         },
       }),
     },
     background: {
       ...styles.background,
-      backgroundColor: theme.dark
-        ? (Platform.OS === 'ios' ? 'transparent' : 'rgba(28, 28, 30, 0.1)')
-        : (Platform.OS === 'ios' ? 'transparent' : 'rgba(255, 255, 255, 0.1)'),
+      backgroundColor: 'rgba(28, 28, 30, 0.1)',
     },
     indicator: {
       ...styles.indicator,
-      backgroundColor: theme.dark
-        ? 'rgba(255, 255, 255, 0.08)' // Subtle white overlay in dark mode
-        : 'rgba(0, 0, 0, 0.04)', // Subtle black overlay in light mode
+      backgroundColor: 'rgba(255, 255, 255, 0.15)', // Lighter indicator for dark background
       width: `${(100 / tabs.length) - 3}%`, // Dynamic width based on number of tabs
     },
   };
@@ -166,6 +153,7 @@ export default function FloatingTabBar({
       ]}>
         <BlurView
           intensity={Platform.OS === 'web' ? 0 : 80}
+          tint="dark"
           style={[dynamicStyles.blurContainer, { borderRadius }]}
         >
           <View style={dynamicStyles.background} />
@@ -185,13 +173,13 @@ export default function FloatingTabBar({
                     <IconSymbol
                       name={tab.icon}
                       size={24}
-                      color={isActive ? theme.colors.primary : (theme.dark ? '#98989D' : '#8E8E93')}
+                      color={isActive ? '#FF69B4' : '#FFFFFF'} // Pink for active, white for inactive
                     />
                     <Text
                       style={[
                         styles.tabLabel,
-                        { color: theme.dark ? '#98989D' : '#8E8E93' },
-                        isActive && { color: theme.colors.primary, fontWeight: '600' },
+                        { color: '#FFFFFF' }, // White text for visibility
+                        isActive && { color: '#FF69B4', fontWeight: '600' }, // Pink for active
                       ]}
                     >
                       {tab.label}

@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { Stack, useRouter } from "expo-router";
 import { StyleSheet, View, Text, Pressable, Platform, ScrollView } from "react-native";
 import { IconSymbol } from "@/components/IconSymbol";
@@ -7,8 +7,34 @@ import { colors } from "@/styles/commonStyles";
 import { LinearGradient } from "expo-linear-gradient";
 import Animated, { FadeInDown, FadeInUp } from 'react-native-reanimated';
 
+// Romantic Arabic quotes with translations
+const romanticQuotes = [
+  { arabic: "أنتِ نبض قلبي وروح حياتي", translation: "You are my heartbeat and the soul of my life" },
+  { arabic: "حبك يضيء دربي في أحلك الأوقات", translation: "Your love lights my path in the darkest times" },
+  { arabic: "معك الحياة أجمل والأيام أحلى", translation: "With you, life is more beautiful and days are sweeter" },
+  { arabic: "أنتِ الحلم الذي تحقق", translation: "You are the dream that came true" },
+  { arabic: "في عينيكِ أرى مستقبلي", translation: "In your eyes, I see my future" },
+  { arabic: "حبك يملأ قلبي بالسعادة", translation: "Your love fills my heart with happiness" },
+  { arabic: "أنتِ كل ما أحتاجه في هذه الحياة", translation: "You are all I need in this life" },
+  { arabic: "معك كل لحظة هي ذكرى جميلة", translation: "With you, every moment is a beautiful memory" },
+  { arabic: "أنتِ الأمل الذي يبقيني قوياً", translation: "You are the hope that keeps me strong" },
+  { arabic: "حبك هو أجمل هدية من الله", translation: "Your love is the most beautiful gift from God" },
+];
+
 export default function HomeScreen() {
   const router = useRouter();
+  const [currentQuoteIndex, setCurrentQuoteIndex] = useState(0);
+
+  // Change quote every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentQuoteIndex((prevIndex) => (prevIndex + 1) % romanticQuotes.length);
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const currentQuote = romanticQuotes[currentQuoteIndex];
 
   const renderHeaderRight = () => (
     <Pressable
@@ -52,11 +78,12 @@ export default function HomeScreen() {
           </Animated.View>
 
           <Animated.View 
-            entering={FadeInDown.delay(400).duration(800)}
+            key={currentQuoteIndex}
+            entering={FadeInDown.duration(800)}
             style={styles.arabicQuoteContainer}
           >
-            <Text style={styles.arabicQuote}>الحب هو أجمل شعور</Text>
-            <Text style={styles.quoteTranslation}>Love is the most beautiful feeling</Text>
+            <Text style={styles.arabicQuote}>{currentQuote.arabic}</Text>
+            <Text style={styles.quoteTranslation}>{currentQuote.translation}</Text>
           </Animated.View>
 
           <Animated.View 

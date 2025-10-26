@@ -69,18 +69,22 @@ export default function QuestionnaireScreen() {
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, any>>({});
   const [showDatePicker, setShowDatePicker] = useState(false);
-  const [showTimePicker, setShowTimePicker] = useState(false);
+  const [tempDate, setTempDate] = useState(new Date());
 
   const currentQuestion = questions[currentQuestionIndex];
   const progress = ((currentQuestionIndex + 1) / questions.length) * 100;
 
   const handleAnswer = (answer: any) => {
+    console.log('Answer selected:', answer, 'for question:', currentQuestion.id);
     const newAnswers = { ...answers, [currentQuestion.id]: answer };
     setAnswers(newAnswers);
 
+    // Move to next question or show results
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
+      setShowDatePicker(false); // Reset picker state
     } else {
+      console.log('All questions answered, navigating to results');
       router.push({
         pathname: '/results',
         params: { answers: JSON.stringify(newAnswers) },
@@ -91,25 +95,45 @@ export default function QuestionnaireScreen() {
   const handleBack = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex(currentQuestionIndex - 1);
+      setShowDatePicker(false);
     } else {
       router.back();
     }
   };
 
+  const handleDateTimeChange = (event: any, selectedDate?: Date) => {
+    console.log('DateTime changed:', event.type, selectedDate);
+    
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false);
+      if (event.type === 'set' && selectedDate) {
+        handleAnswer(selectedDate.toISOString());
+      }
+    } else {
+      // iOS - update temp date
+      if (selectedDate) {
+        setTempDate(selectedDate);
+      }
+    }
+  };
+
+  const confirmDateTime = () => {
+    console.log('Confirming date/time:', tempDate);
+    handleAnswer(tempDate.toISOString());
+  };
+
   const renderDateTimePicker = () => {
     const isDate = currentQuestion.id === 'date';
-    const currentValue = answers[currentQuestion.id] || new Date();
+    const hasAnswer = !!answers[currentQuestion.id];
 
     return (
       <View style={styles.dateTimeContainer}>
         <Pressable
           style={styles.dateTimeButton}
           onPress={() => {
-            if (isDate) {
-              setShowDatePicker(true);
-            } else {
-              setShowTimePicker(true);
-            }
+            console.log('Opening date/time picker for:', currentQuestion.id);
+            setShowDatePicker(true);
+            setTempDate(hasAnswer ? new Date(answers[currentQuestion.id]) : new Date());
           }}
         >
           <IconSymbol 
@@ -118,53 +142,43 @@ export default function QuestionnaireScreen() {
             size={24} 
           />
           <Text style={styles.dateTimeButtonText}>
-            {answers[currentQuestion.id]
+            {hasAnswer
               ? isDate
                 ? new Date(answers[currentQuestion.id]).toLocaleDateString()
-                : new Date(answers[currentQuestion.id]).toLocaleTimeString()
+                : new Date(answers[currentQuestion.id]).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
               : isDate
               ? 'Select Date'
               : 'Select Time'}
           </Text>
         </Pressable>
 
-        {(showDatePicker || showTimePicker) && (
-          <DateTimePicker
-            value={currentValue}
-            mode={isDate ? 'date' : 'time'}
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            onChange={(event, selectedDate) => {
-              if (Platform.OS === 'android') {
-                setShowDatePicker(false);
-                setShowTimePicker(false);
-              }
-              if (selectedDate) {
-                handleAnswer(selectedDate.toISOString());
-              }
-            }}
-          />
-        )}
+        {showDatePicker && (
+          <View style={styles.pickerContainer}>
+            <DateTimePicker
+              value={tempDate}
+              mode={isDate ? 'date' : 'time'}
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={handleDateTimeChange}
+              style={styles.picker}
+            />
 
-        {Platform.OS === 'ios' && (showDatePicker || showTimePicker) && (
-          <Pressable
-            style={styles.confirmButton}
-            onPress={() => {
-              setShowDatePicker(false);
-              setShowTimePicker(false);
-              if (!answers[currentQuestion.id]) {
-                handleAnswer(new Date().toISOString());
-              }
-            }}
-          >
-            <LinearGradient
-              colors={[colors.gradient1, colors.gradient2]}
-              style={styles.confirmButtonGradient}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 1 }}
-            >
-              <Text style={styles.confirmButtonText}>Confirm</Text>
-            </LinearGradient>
-          </Pressable>
+            {Platform.OS === 'ios' && (
+              <Pressable
+                style={styles.confirmButton}
+                onPress={confirmDateTime}
+              >
+                <LinearGradient
+                  colors={[colors.gradient1, colors.gradient2]}
+                  style={styles.confirmButtonGradient}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                >
+                  <Text style={styles.confirmButtonText}>Confirm & Continue</Text>
+                  <IconSymbol name="arrow.right" color="#FFFFFF" size={20} />
+                </LinearGradient>
+              </Pressable>
+            )}
+          </View>
         )}
       </View>
     );
@@ -189,6 +203,9 @@ export default function QuestionnaireScreen() {
           >
             {option}
           </Text>
+          {answers[currentQuestion.id] === option && (
+            <IconSymbol name="checkmark.circle.fill" color="#FFFFFF" size={24} />
+          )}
         </Pressable>
       ))}
     </View>
@@ -325,9 +342,21 @@ const styles = StyleSheet.create({
     color: colors.text,
     marginLeft: 12,
   },
+  pickerContainer: {
+    width: '100%',
+    marginTop: 20,
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 16,
+    boxShadow: '0px 2px 8px rgba(255, 105, 180, 0.2)',
+    elevation: 2,
+  },
+  picker: {
+    width: '100%',
+  },
   confirmButton: {
     borderRadius: 12,
-    marginTop: 20,
+    marginTop: 16,
     width: '100%',
     overflow: 'hidden',
     boxShadow: '0px 4px 12px rgba(255, 105, 180, 0.3)',
@@ -336,6 +365,9 @@ const styles = StyleSheet.create({
   confirmButtonGradient: {
     padding: 16,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 8,
   },
   confirmButtonText: {
     fontSize: 16,
@@ -350,6 +382,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 20,
     alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     boxShadow: '0px 2px 8px rgba(255, 105, 180, 0.2)',
     elevation: 2,
     borderWidth: 2,
@@ -363,6 +397,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
     color: colors.text,
+    flex: 1,
   },
   optionButtonTextSelected: {
     color: '#FFFFFF',
