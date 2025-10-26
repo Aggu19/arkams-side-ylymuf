@@ -17,7 +17,7 @@ interface Question {
 const questions: Question[] = [
   {
     id: 'date',
-    question: 'What is today&apos;s date?',
+    question: "What is today's date?",
     type: 'datetime',
   },
   {
@@ -102,23 +102,37 @@ export default function QuestionnaireScreen() {
   };
 
   const handleDateTimeChange = (event: any, selectedDate?: Date) => {
-    console.log('DateTime changed:', event.type, selectedDate);
+    console.log('DateTime changed:', event.type, selectedDate, 'Platform:', Platform.OS);
     
     if (Platform.OS === 'android') {
       setShowDatePicker(false);
       if (event.type === 'set' && selectedDate) {
+        console.log('Android: Setting answer to:', selectedDate.toISOString());
         handleAnswer(selectedDate.toISOString());
       }
-    } else {
+    } else if (Platform.OS === 'ios') {
       // iOS - update temp date
       if (selectedDate) {
+        console.log('iOS: Updating temp date to:', selectedDate.toISOString());
         setTempDate(selectedDate);
+      }
+    } else {
+      // Web platform - handle differently
+      console.log('Web: Handling date change');
+      if (selectedDate) {
+        setTempDate(selectedDate);
+        // For web, we might need to handle this differently
+        if (event.type === 'set' || event.type === 'change') {
+          handleAnswer(selectedDate.toISOString());
+          setShowDatePicker(false);
+        }
       }
     }
   };
 
   const confirmDateTime = () => {
     console.log('Confirming date/time:', tempDate);
+    setShowDatePicker(false);
     handleAnswer(tempDate.toISOString());
   };
 
@@ -132,9 +146,15 @@ export default function QuestionnaireScreen() {
           style={styles.dateTimeButton}
           onPress={() => {
             console.log('Opening date/time picker for:', currentQuestion.id);
+            console.log('Current showDatePicker state:', showDatePicker);
+            console.log('Current tempDate:', tempDate);
             setShowDatePicker(true);
             setTempDate(hasAnswer ? new Date(answers[currentQuestion.id]) : new Date());
+            console.log('After setting showDatePicker to true');
           }}
+          accessibilityRole="button"
+          accessibilityLabel={isDate ? 'Select date' : 'Select time'}
+          accessibilityHint={isDate ? 'Tap to open date picker' : 'Tap to open time picker'}
         >
           <IconSymbol 
             name={isDate ? 'calendar' : 'clock.fill'} 
@@ -154,18 +174,46 @@ export default function QuestionnaireScreen() {
 
         {showDatePicker && (
           <View style={styles.pickerContainer}>
+            <View style={styles.pickerHeader}>
+              <IconSymbol 
+                name={isDate ? 'calendar' : 'clock.fill'} 
+                color={colors.primary} 
+                size={24} 
+              />
+              <Text style={styles.pickerTitle}>
+                {isDate ? 'Choose Date' : 'Choose Time'}
+              </Text>
+            </View>
+            
             <DateTimePicker
               value={tempDate}
               mode={isDate ? 'date' : 'time'}
-              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              display={Platform.OS === 'ios' ? 'spinner' : (isDate ? 'calendar' : 'default')}
               onChange={handleDateTimeChange}
               style={styles.picker}
+              maximumDate={isDate ? new Date() : undefined}
+              minimumDate={isDate ? new Date(2020, 0, 1) : undefined}
+              accessibilityLabel={isDate ? 'Select date' : 'Select time'}
+              testID={`${isDate ? 'date' : 'time'}-picker`}
+              themeVariant="light"
             />
 
-            {Platform.OS === 'ios' && (
+            <View style={styles.buttonContainer}>
+              <Pressable
+                style={styles.cancelButton}
+                onPress={() => {
+                  console.log('Cancel pressed');
+                  setShowDatePicker(false);
+                }}
+              >
+                <Text style={styles.cancelButtonText}>Cancel</Text>
+              </Pressable>
               <Pressable
                 style={styles.confirmButton}
-                onPress={confirmDateTime}
+                onPress={() => {
+                  console.log('Confirm pressed, tempDate:', tempDate);
+                  confirmDateTime();
+                }}
               >
                 <LinearGradient
                   colors={[colors.gradient1, colors.gradient2]}
@@ -177,7 +225,7 @@ export default function QuestionnaireScreen() {
                   <IconSymbol name="arrow.right" color="#FFFFFF" size={20} />
                 </LinearGradient>
               </Pressable>
-            )}
+            </View>
           </View>
         )}
       </View>
@@ -331,7 +379,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
-    boxShadow: '0px 2px 8px rgba(255, 105, 180, 0.2)',
+    shadowColor: '#FF69B4',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
     elevation: 2,
     borderWidth: 2,
     borderColor: colors.accent,
@@ -348,18 +399,56 @@ const styles = StyleSheet.create({
     backgroundColor: colors.card,
     borderRadius: 16,
     padding: 16,
-    boxShadow: '0px 2px 8px rgba(255, 105, 180, 0.2)',
+    shadowColor: '#FF69B4',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
     elevation: 2,
   },
   picker: {
     width: '100%',
   },
-  confirmButton: {
-    borderRadius: 12,
+  pickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 16,
+    gap: 8,
+  },
+  pickerTitle: {
+    fontSize: 18,
+    fontWeight: '600',
+    color: colors.text,
+    textAlign: 'center',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    gap: 12,
     marginTop: 16,
-    width: '100%',
+  },
+  cancelButton: {
+    flex: 1,
+    borderRadius: 12,
+    padding: 16,
+    backgroundColor: colors.accent,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+    borderColor: colors.accent,
+  },
+  cancelButtonText: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: colors.text,
+  },
+  confirmButton: {
+    flex: 2,
+    borderRadius: 12,
     overflow: 'hidden',
-    boxShadow: '0px 4px 12px rgba(255, 105, 180, 0.3)',
+    shadowColor: '#FF69B4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
     elevation: 4,
   },
   confirmButtonGradient: {
@@ -384,7 +473,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    boxShadow: '0px 2px 8px rgba(255, 105, 180, 0.2)',
+    shadowColor: '#FF69B4',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
     elevation: 2,
     borderWidth: 2,
     borderColor: colors.accent,
@@ -412,7 +504,10 @@ const styles = StyleSheet.create({
     padding: 32,
     alignItems: 'center',
     justifyContent: 'center',
-    boxShadow: '0px 4px 12px rgba(0, 0, 0, 0.15)',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 12,
     elevation: 4,
   },
   yesButton: {
@@ -441,3 +536,4 @@ const styles = StyleSheet.create({
     opacity: 0.7,
   },
 });
+

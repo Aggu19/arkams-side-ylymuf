@@ -29,28 +29,28 @@ export default function ResultsScreen() {
 
     // Analyze work status
     if (ans.workStatus === 'At Work') {
-      possibleReasons.push('Arkam is at work right now. He&apos;s trying his best to focus on his responsibilities while thinking of you.');
+      possibleReasons.push('Arkam is at work right now. He\'s trying his best to focus on his responsibilities while thinking of you.');
     } else if (ans.workStatus === 'Working from Home') {
-      possibleReasons.push('Arkam is working from home. Even though he&apos;s nearby, his mind is occupied with work tasks.');
+      possibleReasons.push('Arkam is working from home. Even though he\'s nearby, his mind is occupied with work tasks.');
     }
 
     // Analyze tension
     if (ans.tension === 'Yes, a lot') {
-      possibleReasons.push('He&apos;s under a lot of tension right now. Please wait until he finishes his work - he&apos;s trying really hard.');
-      setArabicQuote('الصبر مفتاح الفرج');
-      setQuoteTranslation('Patience is the key to relief');
+      possibleReasons.push('He\'s under a lot of tension right now. Please wait until he finishes his work - he\'s trying really hard.');
+      setArabicQuote('وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مَخْرَجًا');
+      setQuoteTranslation('And whoever fears Allah, He will make for him a way out (Quran 65:2)');
     } else if (ans.tension === 'A little bit') {
-      possibleReasons.push('He&apos;s feeling a bit tense. Give him some time to complete his tasks and he&apos;ll be back to his loving self.');
-      setArabicQuote('كل شيء سيكون على ما يرام');
-      setQuoteTranslation('Everything will be alright');
+      possibleReasons.push('He\'s feeling a bit tense. Give him some time to complete his tasks and he\'ll be back to his loving self.');
+      setArabicQuote('وَمَن يَتَّقِ اللَّهَ يَجْعَل لَّهُ مِنْ أَمْرِهِ يُسْرًا');
+      setQuoteTranslation('And whoever fears Allah, He will make his matter easy for him (Quran 65:4)');
     } else {
-      setArabicQuote('الحب يصنع المعجزات');
-      setQuoteTranslation('Love works miracles');
+      setArabicQuote('وَمِنْ آيَاتِهِ أَنْ خَلَقَ لَكُم مِّنْ أَنفُسِكُمْ أَزْوَاجًا لِّتَسْكُنُوا إِلَيْهَا وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً');
+      setQuoteTranslation('And of His signs is that He created for you from yourselves mates that you may find tranquility in them; and He placed between you affection and mercy (Quran 30:21)');
     }
 
     // Analyze the answers
     if (ans.stressed === 'yes') {
-      possibleReasons.push('He&apos;s dealing with stress. Remember, he&apos;s working hard for both of you.');
+      possibleReasons.push('He\'s dealing with stress. Remember, he\'s working hard for both of you.');
     }
     if (ans.busy === 'yes') {
       possibleReasons.push('He mentioned being busy. This means he has important work to finish.');
@@ -66,13 +66,13 @@ export default function ResultsScreen() {
       } else if (hour >= 12 && hour <= 14) {
         possibleReasons.push('Midday is often the busiest time with work deadlines.');
       } else if (hour >= 9 && hour <= 18) {
-        possibleReasons.push('He&apos;s in the middle of his work day, trying to meet his goals.');
+        possibleReasons.push('He\'s in the middle of his work day, trying to meet his goals.');
       }
     }
 
     // General positive reasons
     if (possibleReasons.length === 0 || ans.shouted === 'yes' || ans.notTalkingWell === 'yes') {
-      possibleReasons.push('Everyone has difficult moments. It&apos;s not about you - he loves you deeply.');
+      possibleReasons.push('Everyone has difficult moments. It\'s not about you - he loves you deeply.');
       possibleReasons.push('He might be overwhelmed with responsibilities right now.');
       possibleReasons.push('Sometimes people need space to process their thoughts and emotions.');
     }
@@ -84,15 +84,15 @@ export default function ResultsScreen() {
     
     if (ans.workStatus === 'At Work' || ans.workStatus === 'Working from Home') {
       mainMessage = 
-        'Shaeema, my love, please understand that Arkam is working right now. He&apos;s trying his absolute best to finish his work. ' +
-        'Wait until he completes his tasks - he&apos;s working hard for your future together. ' +
-        'His love for you never changes, even when he&apos;s busy or stressed. ' +
-        'You mean the world to him, and he&apos;s doing everything he can. Please be patient with him. 💕';
+        'Shaeema, my precious love, please understand that Arkam is working right now. He\'s trying his absolute best to finish his work. ' +
+        'Wait until he completes his tasks - he\'s working hard for your future together. ' +
+        'His love for you never changes, even when he\'s busy or stressed. ' +
+        'You mean the world to him, and he\'s doing everything he can. Please be patient with him. 💕';
     } else {
       mainMessage = 
-        'Remember, Arkam loves you more than anything in this world. His behavior today doesn&apos;t reflect his feelings for you. ' +
-        'We all have challenging days, and sometimes we don&apos;t express ourselves the way we want to. ' +
-        'Give him some time and space, and things will get better. You&apos;re his everything, and he knows how special you are! 💖';
+        'Remember, Arkam loves you more than anything in this world. His behavior today doesn\'t reflect his feelings for you. ' +
+        'We all have challenging days, and sometimes we don\'t express ourselves the way we want to. ' +
+        'Give him some time and space, and things will get better. You\'re his everything, and he knows how special you are! 💖';
     }
 
     setMessage(mainMessage);
@@ -144,6 +144,16 @@ export default function ResultsScreen() {
           )}
 
           <Animated.View 
+            entering={FadeInDown.delay(550).duration(600)}
+            style={styles.additionalQuoteCard}
+          >
+            <Text style={styles.additionalArabicText}>وَجَعَلَ بَيْنَكُم مَّوَدَّةً وَرَحْمَةً</Text>
+            <Text style={styles.additionalTranslationText}>And He placed between you affection and mercy (Quran 30:21)</Text>
+            <Text style={styles.additionalArabicText}>فَإِنَّ مَعَ الْعُسْرِ يُسْرًا</Text>
+            <Text style={styles.additionalTranslationText}>Indeed, with hardship comes ease (Quran 94:6)</Text>
+          </Animated.View>
+
+          <Animated.View 
             entering={FadeInDown.delay(600).duration(600)}
             style={styles.messageCard}
           >
@@ -184,11 +194,34 @@ export default function ResultsScreen() {
             </View>
             <View style={styles.tipItem}>
               <IconSymbol name="message.fill" color={colors.primary} size={20} />
-              <Text style={styles.tipText}>Send him a sweet message later when he&apos;s free</Text>
+              <Text style={styles.tipText}>Send him a sweet message later when he\'s free</Text>
             </View>
             <View style={styles.tipItem}>
               <IconSymbol name="sparkles" color={colors.primary} size={20} />
-              <Text style={styles.tipText}>Trust that he&apos;s trying his best for both of you</Text>
+              <Text style={styles.tipText}>Trust that he\'s trying his best for both of you</Text>
+            </View>
+          </Animated.View>
+
+          <Animated.View 
+            entering={FadeInDown.delay(1600).duration(600)}
+            style={styles.selfCareCard}
+          >
+            <Text style={styles.selfCareTitle}>Take Care of Yourself, Beautiful Soul 💖</Text>
+            <View style={styles.selfCareItem}>
+              <IconSymbol name="heart.fill" color={colors.primary} size={20} />
+              <Text style={styles.selfCareText}>You are worthy of love and patience</Text>
+            </View>
+            <View style={styles.selfCareItem}>
+              <IconSymbol name="leaf.fill" color={colors.primary} size={20} />
+              <Text style={styles.selfCareText}>Take deep breaths and stay calm</Text>
+            </View>
+            <View style={styles.selfCareItem}>
+              <IconSymbol name="sun.max.fill" color={colors.primary} size={20} />
+              <Text style={styles.selfCareText}>Remember: this too shall pass</Text>
+            </View>
+            <View style={styles.selfCareItem}>
+              <IconSymbol name="sparkles" color={colors.primary} size={20} />
+              <Text style={styles.selfCareText}>You are stronger than you think</Text>
             </View>
           </Animated.View>
 
@@ -251,7 +284,10 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     justifyContent: 'center',
     alignItems: 'center',
-    boxShadow: '0px 4px 16px rgba(255, 105, 180, 0.4)',
+    shadowColor: '#FF69B4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 16,
     elevation: 5,
   },
   title: {
@@ -270,7 +306,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 2,
     borderColor: colors.accent,
-    boxShadow: '0px 2px 12px rgba(255, 105, 180, 0.2)',
+    shadowColor: '#FF69B4',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
     elevation: 3,
   },
   arabicQuoteText: {
@@ -287,13 +326,74 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontStyle: 'italic',
   },
+  additionalQuoteCard: {
+    backgroundColor: colors.accent,
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 20,
+    width: '100%',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderColor: colors.secondary,
+  },
+  additionalArabicText: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: colors.primary,
+    textAlign: 'center',
+    marginBottom: 4,
+    fontFamily: 'System',
+  },
+  additionalTranslationText: {
+    fontSize: 13,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    fontStyle: 'italic',
+    marginBottom: 12,
+  },
+  selfCareCard: {
+    backgroundColor: colors.card,
+    borderRadius: 16,
+    padding: 20,
+    width: '100%',
+    marginBottom: 24,
+    borderWidth: 2,
+    borderColor: colors.accent,
+    shadowColor: '#FF69B4',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  selfCareTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: colors.primary,
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  selfCareItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  selfCareText: {
+    fontSize: 15,
+    color: colors.text,
+    marginLeft: 12,
+    flex: 1,
+    fontStyle: 'italic',
+  },
   messageCard: {
     backgroundColor: colors.card,
     borderRadius: 20,
     padding: 24,
     marginBottom: 24,
     width: '100%',
-    boxShadow: '0px 2px 12px rgba(255, 105, 180, 0.2)',
+    shadowColor: '#FF69B4',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
     elevation: 3,
     borderWidth: 2,
     borderColor: colors.accent,
@@ -321,7 +421,10 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 16,
     marginBottom: 12,
-    boxShadow: '0px 2px 8px rgba(255, 105, 180, 0.15)',
+    shadowColor: '#FF69B4',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
     elevation: 2,
     borderWidth: 1,
     borderColor: colors.accent,
@@ -368,7 +471,10 @@ const styles = StyleSheet.create({
     padding: 24,
     marginBottom: 24,
     width: '100%',
-    boxShadow: '0px 4px 16px rgba(255, 105, 180, 0.3)',
+    shadowColor: '#FF69B4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3,
+    shadowRadius: 16,
     elevation: 4,
     borderWidth: 2,
     borderColor: colors.primary,
@@ -391,7 +497,10 @@ const styles = StyleSheet.create({
     width: '100%',
     borderRadius: 16,
     overflow: 'hidden',
-    boxShadow: '0px 4px 12px rgba(255, 105, 180, 0.4)',
+    shadowColor: '#FF69B4',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 12,
     elevation: 4,
     marginBottom: 20,
   },
